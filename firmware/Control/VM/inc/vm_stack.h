@@ -39,7 +39,7 @@ void writeGlobal(Vm *vm, uint16_t off, VmSlot data);
 uint16_t localIdx2Off(Vm *vm, uint8_t idx);
 VmSlot readLocal(Vm *vm, uint8_t idx);
 void writeLocal(Vm *vm, uint8_t idx, VmSlot data);
-void pushFrame(Vm *vm, uint16_t return_addr, uint8_t argc);
+void pushFrame(Vm *vm, uint16_t return_addr, const uint8_t argc);
 void popFrame(Vm *vm);
 VmSlot popOperantStack(Vm *vm);
 

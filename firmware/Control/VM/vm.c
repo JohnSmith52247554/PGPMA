@@ -112,7 +112,6 @@ void vm_run(Vm *vm)
     }
 }
 
-
 int vm_load(Vm *vm, uint8_t *program_ptr)
 {
     uint32_t program_size;

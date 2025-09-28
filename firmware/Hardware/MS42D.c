@@ -165,7 +165,7 @@ void MS42D_RequestData(uint32_t id)
  */
 uint8_t MS42D_GetFeedback(MS42D_Info *info)
 {
-    uint64_t timeout = 999999;
+    uint64_t timeout = 9999;
     while (CAN_RxFlag() == 0)
     {
         --timeout;

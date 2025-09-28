@@ -17,6 +17,9 @@
 #include "Servo.h"
 #include "kinematics.h"
 #include "trigonometric.h"
+#include "VisualMode.h"
+#include "USBD_ctrl.h"
+#include "OperationMode.h"
 
 // 指令集
 // 控制流
@@ -34,8 +37,8 @@
 #define OP_LOADK    0x11
 #define OP_LOADG    0x12
 #define OP_LOADL    0x13
-#define OP_IMMI    0x14
-#define OP_IMMF    0x15
+#define OP_IMMI     0x14
+#define OP_IMMF     0x15
 #define OP_POP      0x16
 #define OP_STORL    0x17
 #define OP_STORG    0x18
@@ -92,10 +95,13 @@
 #define OP_GRIP_CLOSE   0x9D
 #define OP_SETJSPD  0x9E
 #define OP_OLEDI    0xA1
+#define OP_VINIT    0xB1
+#define OP_VGRIP    0xB2
+#define OP_VDINIT   0xB3
 
 // 测试用指令
 // 从栈顶弹出一个参数，视为整数，并打印在控制台
-#define OP_PRINT 0xB1
+// #define OP_PRINT 0xB1
 
 void vm_dispatch_single_op(Vm *vm);
 void vm_dispatch_splite_op(Vm *vm);
@@ -685,7 +691,7 @@ void vm_dispatch_single_op(Vm *vm)
         handle.alpha = degree2radian(alpha.f32);
         if (kine_reverse_resolve(&handle) == KINE_OK)
         {
-            MotorAngle angle = get_motor_angle(&handle);
+            MotorAngle angle = kine_get_motor_angle(&handle);
             Joint_SetTarget(&m1h, angle.m1a);
             Joint_SetTarget(&m2h, angle.m2a);
             Joint_SetTarget(&m3h, angle.m3a);
@@ -707,7 +713,7 @@ void vm_dispatch_single_op(Vm *vm)
         handle.alpha = degree2radian(alpha.f32);
         if (kine_reverse_resolve(&handle) == KINE_OK)
         {
-            MotorAngle angle = get_motor_angle(&handle);
+            MotorAngle angle = kine_get_motor_angle(&handle);
             Joint_SetTarget(&m1h, angle.m1a);
             Joint_SetTarget(&m2h, angle.m2a);
             Joint_SetTarget(&m3h, angle.m3a);
@@ -754,11 +760,15 @@ void vm_dispatch_single_op(Vm *vm)
     case OP_GRIP_OPEN:
     {
         Gripper_Open();
+        // vm->split_op = OP_WAITJ;
+        // vm->temp_info = 6;
     }
     break;
     case OP_GRIP_CLOSE:
     {
         Gripper_CloseStart();
+        // vm->split_op = OP_WAITJ;
+        // vm->temp_info = 6;
     }
     break;
     case OP_SETJSPD:
@@ -798,14 +808,32 @@ void vm_dispatch_single_op(Vm *vm)
         OLED_ShowNum(row.i32, col.i32, num.i32, len.i32);
     }
     break;
-
-    // 调试用
-    case OP_PRINT:
+    case OP_VINIT:
     {
-        VmSlot val = popOperantStack(vm);
-        // printf("%d\n", val.i32);
+        Op_SetVisualMode();
+        Visual_Init(&visual_handle);
+        USBD_Enable();
     }
     break;
+    case OP_VGRIP:
+    {
+        Visual_Active(&visual_handle);
+        vm->split_op = OP_VGRIP;
+    }
+    break;
+    case OP_VDINIT:
+    {
+        Visual_Deactive(&visual_handle);
+        USBD_Disable();
+    }
+
+    // 调试用
+    // case OP_PRINT:
+    // {
+    //     VmSlot val = popOperantStack(vm);
+    //     // printf("%d\n", val.i32);
+    // }
+    // break;
 
     default:
         vm->status_code = VM_INVALID_OPERATOR;
@@ -865,6 +893,20 @@ void vm_dispatch_splite_op(Vm *vm)
             }
         }
         break;
+    case OP_VGRIP:
+        {
+            if (Visual_GripPoll(&visual_handle) == VISUAL_GRIP_OK)
+            {
+                vm->split_op = 0;
+                VmSlot vhandle_slot;
+                vhandle_slot.i32 = (uint32_t)visual_handle.vinfo.qr_id;
+                Visual_Deactive(&visual_handle);
+                // OLED_ShowNum(2, 5, visual_handle.vinfo.qr_id, 8);
+                pushSlot(vm, vhandle_slot);
+            }
+        }
+        break;
+    
     default:
         break;
     }

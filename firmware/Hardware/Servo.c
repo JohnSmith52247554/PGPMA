@@ -2,6 +2,8 @@
 #include "OLED.h"
 #include "usart.h"
 
+#include <usbd_cdc_if.h>
+
 #include <string.h>
 
 /**
@@ -29,7 +31,7 @@ HAL_StatusTypeDef Servo_Init()
  */
 HAL_StatusTypeDef Servo_SetDuty(uint8_t id, uint16_t duty, uint16_t time)
 {
-    static char cmd[] = "#000P0000T0000!";
+    char cmd[] = "#000P0000T0000!";
 
     Servo_NumToStr(cmd + 1, 3, id);
     Servo_NumToStr(cmd + 5, 4, duty);
@@ -53,7 +55,7 @@ int16_t Servo_GetDuty(uint8_t id)
 
     if (USART_SendStr(cmd) != HAL_OK)
     {
-        OLED_ShowString(1, 1, "SEND ERR");
+        // OLED_ShowString(1, 1, "SEND ERR");
         return -1;
     }
     char recv[] = "#000PEEEE!";
@@ -81,7 +83,7 @@ int16_t Servo_GetDuty(uint8_t id)
  */
 HAL_StatusTypeDef Servo_SetAngle(uint8_t id, float angle, uint16_t time)
 {
-    return Servo_SetDuty(id, angle / 270 * 2000 + 500, time);
+    return Servo_SetDuty(id, angle / 270.f * 2000.f + 500.f, time);
 }
 
 /**

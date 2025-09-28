@@ -1,2 +1,4 @@
-from .visual_detect import visual_detect, set_thread_alive
-from .visual_detect_2 import visual_detect_2, set_loop_flag
+from .visual_detect_3 import visual_detect_3, set_loop_flag
+# from .visual_detect_4 import visual_detect_4, set_loop_flag
+# from .visual_detect_5 import visual_detect_3, set_loop_flag
+from .visual_detect_2 import visual_detect_2

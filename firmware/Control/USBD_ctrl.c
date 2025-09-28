@@ -125,13 +125,13 @@ void USBD_Poll()
 			/** 即时正交坐标控制
 				格式为：58 XXXXXXXX YYYYYYYY ZZZZZZZZ AAAAAAAA
 			*/
-			float x, y, z, alpha;
+			float x, y, z, alpha, s1, s2;
 			DESERIALIZE(UserRxBuffer + 1, x);
 			DESERIALIZE(UserRxBuffer + 5, y);
 			DESERIALIZE(UserRxBuffer + 9, z);
 			DESERIALIZE(UserRxBuffer + 13, alpha);
-			// DESERIALIZE(UserRxBuffer + 17, ry);
-			// DESERIALIZE(UserRxBuffer + 21, rz);
+			DESERIALIZE(UserRxBuffer + 17, s1);
+			DESERIALIZE(UserRxBuffer + 21, s2);
 			// DESERIALIZE(UserRxBuffer + 25, gripper);
 
 			DEBUG_CODE(
@@ -157,16 +157,18 @@ void USBD_Poll()
 			}
 			else
 			{
-				MotorAngle angle = get_motor_angle(&handle);
-				OLED_Clear();
+				MotorAngle angle = kine_get_motor_angle(&handle);
+				// OLED_Clear();
+				Gripper_SetAngle(s2);
 				Joint_SetTarget(&m1h, angle.m1a);
 				Joint_SetTarget(&m2h, angle.m2a);
 				Joint_SetTarget(&m3h, angle.m3a);
 				Joint_SetTarget(&m4h, angle.m4a);
-				OLED_ShowFloatNum(3, 1, angle.m1a, 3, 1);
-				OLED_ShowFloatNum(3, 8, angle.m2a, 3, 1);
-				OLED_ShowFloatNum(4, 1, angle.m3a, 3, 1);
-				OLED_ShowFloatNum(4, 8, angle.m4a, 3, 1);
+				S1_SetAngle(s1);
+				// OLED_ShowFloatNum(3, 1, angle.m1a, 3, 1);
+				// OLED_ShowFloatNum(3, 8, angle.m2a, 3, 1);
+				// OLED_ShowFloatNum(4, 1, angle.m3a, 3, 1);
+				// OLED_ShowFloatNum(4, 8, angle.m4a, 3, 1);
 
 				USBD_Respond(RESPOND_OK);
 			}
@@ -198,13 +200,14 @@ void USBD_Poll()
 				// OLED_ShowFloatNum(4, 7, s2, 2, 1);
 			);
 
+			S1_SetAngle(s1);
 			Joint_SetTarget(&m1h, m1);
 			Joint_SetTarget(&m2h, m2);
 			Joint_SetTarget(&m3h, m3);
 			Joint_SetTarget(&m4h, m4);
-			S1_SetAngle(s1);
 			Gripper_SetAngle(s2);
-
+			// OLED_ShowNum(4, 1, s1, 3);
+			// OLED_ShowNum(4, 5, s2, 3);
 			USBD_Respond(RESPOND_OK);
 		}
 		break;
@@ -261,15 +264,14 @@ void USBD_Poll()
 
 			VisualInfo info;
 			DESERIALIZE(UserRxBuffer + 1, info.x);
-			DESERIALIZE(UserRxBuffer + 5, info.y);
-			DESERIALIZE(UserRxBuffer + 9, info.z);
+			DESERIALIZE(UserRxBuffer + 5, info.z);
+			DESERIALIZE(UserRxBuffer + 9, info.rot);
 			memcpy(&info.qr_id, UserRxBuffer + 13, sizeof(info.qr_id));
 
 			// OLED_ShowFloatNum(4, 1, x, 2, 1);
 			// OLED_ShowFloatNum(4, 6, rot, 2, 1);
-			// OLED_ShowNum(4, 1, qr_id, 8);
-
-			Visual_SetTarget(&info);
+			// OLED_ShowNum(4, 1, info.qr_id, 8);
+			Visual_SetTarget(&visual_handle, &info);
 
 			USBD_Respond(RESPOND_OK);
 		}
@@ -428,7 +430,7 @@ void USBD_Poll()
 		break;
 		case CMD_CLEAN_FLASH_A:
 		{
-			DEBUG_CODE(OLED_ShowString(1, 1, "Chip Erase"););
+			DEBUG_CODE(OLED_ShowString(1, 1, "ChipErase"););
 			if (UserRxBuffer[1] == CMD_CLEAN_FLASH_B &&
 				UserRxBuffer[2] == CMD_CLEAN_FLASH_C &&
 				UserRxBuffer[3] == CMD_CLEAN_FLASH_D)
@@ -438,7 +440,7 @@ void USBD_Poll()
 				HAL_StatusTypeDef state = W25Q_ChipErase();
 				if (state == HAL_OK)
 					state = W25Q_WaitBusy(99999999);
-				OLED_ShowNum(3, 1, state, 1);
+				// OLED_ShowNum(3, 1, state, 1);
 				switch (state)
 				{
 				case HAL_OK:

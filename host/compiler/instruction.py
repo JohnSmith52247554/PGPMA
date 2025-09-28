@@ -71,8 +71,11 @@ class OpCode(enum.Enum):
     GRIPPER_CLOSE = 0x9D
     SETJSPD = 0x9E
     OLEDI = 0xA1
+    VINIT = 0xB1
+    VGRIP = 0xB2
+    VDINIT = 0xB3
 
-    PRINT = 0xB1    # 调试用
+    #PRINT = 0xB1    # 调试用
 
     LABEL = 0xFF    # 标签，仅在汇编阶段使用，不参与机器码生成
 

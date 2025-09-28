@@ -2,7 +2,6 @@
 
 #include "main.h"
 
-
 const float sin_func[] = {
     0.00000000,
     0.00017453,
@@ -12007,6 +12006,7 @@ const float arctan_func_10_1000[] = {
     89.94259095,
     89.94264842,
 };
+
 float t_sin_degree(float degree)
 {
     int32_t angle = (int32_t)(degree * 100) % 36000;

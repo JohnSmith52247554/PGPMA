@@ -71,6 +71,9 @@ class KeywordType(Enum):
     GRIPPER_CLOSE = auto()
     SET_JOINT_SPEED = auto()
     OLED_SHOW_INT = auto()
+    VISUAL_INIT = auto()
+    VISUAL_GRIP = auto()
+    VISUAL_DEINIT = auto()
     # 其他
     LEFT_PARENTHESIS = auto()  # (
     RIGHT_PARENTHESIS = auto()  # )
@@ -80,7 +83,7 @@ class KeywordType(Enum):
     SEMICOLON = auto()  # ;
 
     # 调试用
-    PRINT = auto()
+    # PRINT = auto()
 
 class VarType(Enum):
     AUTO = auto()
@@ -198,9 +201,12 @@ keyword_map = {
     'gripper_close' : KeywordType.GRIPPER_CLOSE,
     'set_joint_speed' : KeywordType.SET_JOINT_SPEED,
     'oled_show_int' : KeywordType.OLED_SHOW_INT,
+    'visual_init' : KeywordType.VISUAL_INIT,
+    'visual_grip' : KeywordType.VISUAL_GRIP,
+    'visual_deinit' : KeywordType.VISUAL_DEINIT,
 
     # 调试用
-    'print' : KeywordType.PRINT,
+    # 'print' : KeywordType.PRINT,
 }
 
 

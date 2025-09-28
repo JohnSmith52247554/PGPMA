@@ -637,10 +637,10 @@ class Assembler:
             for arg in expr.args:
                 instructions.extend(self._gen_expr(arg, symbol_table))
             instructions.append(Instruction(OpCode.CALL, Label(expr.func), U8(len(expr.args))))
-            if not require_result:
+            if not require_result and expr.info["return_type"] != VarType.VOID:
                 instructions.append(Instruction(OpCode.POP))
         elif isinstance(expr, SysCallExpr):
-            if expr.func is not KeywordType.READ_JOINT and require_result:
+            if expr.func not in (KeywordType.READ_JOINT, KeywordType.VISUAL_GRIP) and require_result:
                 raise RuntimeError("System call with no return must not be used as an expression")
             for arg in expr.args:
                 instructions.extend(self._gen_expr(arg, symbol_table))
@@ -676,8 +676,15 @@ class Assembler:
                 instructions.append(Instruction(OpCode.SETJSPD))
             elif expr.func == KeywordType.OLED_SHOW_INT:
                 instructions.append(Instruction(OpCode.OLEDI))
-            elif expr.func == KeywordType.PRINT:
-                instructions.append(Instruction(OpCode.PRINT))
+            elif expr.func == KeywordType.VISUAL_INIT:
+                instructions.append(Instruction(OpCode.VINIT))
+            elif expr.func == KeywordType.VISUAL_GRIP:
+                instructions.append(Instruction(OpCode.VGRIP))
+            elif expr.func == KeywordType.VISUAL_DEINIT:
+                instructions.append(Instruction(OpCode.VDINIT))
+
+            # elif expr.func == KeywordType.PRINT:
+            #     instructions.append(Instruction(OpCode.PRINT))
             else:
                 raise RuntimeError("Unsupported system call: " + str(expr.func))
 

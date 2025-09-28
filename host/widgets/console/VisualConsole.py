@@ -1,4 +1,3 @@
-from visual import set_thread_alive
 from .AbstractConsole import AbstractConsole
 import cv2
 import threading
@@ -8,7 +7,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 
 from s_serial import MsgType, Message
-from visual import set_loop_flag, visual_detect_2
+from visual import set_loop_flag, visual_detect_3, visual_detect_2
 
 
 class MessageChunk(tk.Frame):
@@ -103,7 +102,7 @@ class VisualConsole(AbstractConsole):
                 self.master.add_message(Message(MsgType.CREATE_ERROR_WINDOW, "请选择摄像头"))
                 return
             set_loop_flag(True)
-            self.visual_detect_thread = threading.Thread(target=visual_detect_2, args=(camera_index, self), daemon=True)
+            self.visual_detect_thread = threading.Thread(target=visual_detect_3, args=(camera_index, self), daemon=True)
             self.visual_detect_thread.start()
 
     def _stop(self):
@@ -125,6 +124,7 @@ class VisualConsole(AbstractConsole):
         self.image = self.image.resize((500, 400), Image.Resampling.LANCZOS)
         self.photo = ImageTk.PhotoImage(self.image)
         self.label_image.config(image=self.photo)
+        self.label_image.image = self.photo
 
     def add_message(self, message : str):
         self.message_chunk.add_message(message)

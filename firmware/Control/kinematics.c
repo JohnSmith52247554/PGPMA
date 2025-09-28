@@ -16,8 +16,8 @@
 #define THETA_2_MAX (1.5f * PI)
 #define THETA_3_MIN (0.2f * PI)
 #define THETA_3_MAX (1.6f * PI)
-#define THETA_4_MIN (0.6f * PI)
-#define THETA_4_MAX (1.4f * PI)
+#define THETA_4_MIN (0.7f * PI)
+#define THETA_4_MAX (1.3f * PI)
 
 #define SQUARE(x) ((x) * (x))
 
@@ -156,7 +156,34 @@ uint8_t kine_reverse_resolve(KineHandle *handle)
     return examine_result;
 }
 
-MotorAngle get_motor_angle(KineHandle *handle)
+/**
+ * @brief 
+ * 
+ * @param handle 
+ * @param alpha_begin 角度
+ * @param alpha_end 角度
+ * @return uint8_t 
+ */
+uint8_t kine_reverse_range(KineHandle *handle, float alpha_begin, float alpha_end, float step)
+{
+    if (alpha_begin > alpha_end || step <= 0.f)
+        return KINE_INVALIDE;
+
+    KineHandle handle_copy = *handle;
+    for (float alpha = alpha_begin; alpha <= alpha_end; alpha += step)
+    {
+        handle_copy.alpha = degree2radian(alpha);
+        uint8_t res = kine_reverse_resolve(&handle_copy);
+        if (res == KINE_OK)
+        {
+            *handle = handle_copy;
+            return KINE_OK;
+        }
+    }
+    return KINE_UNREACHABLE;
+}
+
+MotorAngle kine_get_motor_angle(KineHandle *handle)
 {
     MotorAngle motor_angle;
     motor_angle.m1a = radian2degree(handle->theta_1);
@@ -214,8 +241,8 @@ uint8_t examine_reverse_resolve_result(KineHandle *handle)
     if (fabsf(handle_copy.alpha - handle->alpha) > RADIAN_TOLERABLE_ERROR)
         return KINE_INVALIDE;
 
-    if (checkArmValid(handle) != KINE_OK)
-        return KINE_ARM_COLLISION;
+    // if (checkArmValid(handle) != KINE_OK)
+    //     return KINE_ARM_COLLISION;
 
     return KINE_OK;
 }

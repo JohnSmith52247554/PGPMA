@@ -1,2 +1,2 @@
-# PGPMA
-programable general purpose mechanical arm
+# IGPMA
+intelligent general purpose mechanical arm

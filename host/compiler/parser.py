@@ -493,7 +493,7 @@ class Parser:
             inner = self._parse_expr_bp(0)
             self._expect(KeywordType.RIGHT_PARENTHESIS)
             left = inner
-        elif tok.token_type == TokenType.KEYWORD and KeywordType.DELAY.value <= tok.keyword_type.value <= KeywordType.PRINT.value:
+        elif tok.token_type == TokenType.KEYWORD and KeywordType.DELAY.value <= tok.keyword_type.value <= KeywordType.VISUAL_DEINIT.value:
             # 解析系统函数调用
             left = SysCallExpr(tok.keyword_type)
         else:
@@ -592,6 +592,8 @@ def get_expr_type(expr: Expr, symbol_table: SymbolTable) -> VarType:
 def get_syscall_return_type(keyword_type: KeywordType) -> VarType:
     if keyword_type == KeywordType.READ_JOINT:
         return VarType.FLOAT
+    elif keyword_type == KeywordType.VISUAL_GRIP:
+        return VarType.INT
     else:
         return VarType.VOID
 
@@ -612,8 +614,10 @@ def get_syscall_arg(keyword_type: KeywordType) -> List[VarType]:
         return [VarType.INT, VarType.FLOAT]
     elif keyword_type == KeywordType.OLED_SHOW_INT:
         return [VarType.INT, VarType.INT, VarType.INT, VarType.INT]
-    elif keyword_type == KeywordType.PRINT:
-        return [VarType.INT]
+    # elif keyword_type == KeywordType.PRINT:
+    #     return [VarType.INT]
+    # elif keyword_type == KeywordType.VISUAL_GRIP:
+    #     return [VarType.INT]
     else:
         return []
 

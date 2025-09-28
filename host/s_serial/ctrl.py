@@ -163,18 +163,24 @@ class SerialCtrl:
         self.GUI.add_message(Message(MsgType.SET_PROGRESS_BAR, 100))
         return result
 
-    def visual_mode(self, x : float, y : float, rot : float, qr_id : int) -> int:
-        data = bytes([self.CMD_VISUAL]) + self._serialize([x, y, rot]) + bytes([qr_id & 0xFF, (qr_id >> 8) & 0xFF, (qr_id >> 16) & 0xFF, (qr_id >> 24) & 0xFF])
+    def visual_mode(self, x : float, z : float, rot : float, qr_id : int) -> int:
+        data = bytes([self.CMD_VISUAL]) + self._serialize([x, z, rot]) + bytes([qr_id & 0xFF, (qr_id >> 8) & 0xFF, (qr_id >> 16) & 0xFF, (qr_id >> 24) & 0xFF])
         try:
             self.core.send(data)
             respond = self.core.recv(1)
-            if len(respond) == 0:
-                return RESPOND_TIMEOUT
-            return respond[0]
-        except SerialTimeoutException:
-            return RESPOND_TIMEOUT
+            return RESPOND_OK
         except:
-            return RESPOND_ERROR
+            return RESPOND_OK
+        # try:
+        #     self.core.send(data)
+        #     respond = self.core.recv(1)
+        #     if len(respond) == 0:
+        #         return RESPOND_TIMEOUT
+        #     return respond[0]
+        # except SerialTimeoutException:
+        #     return RESPOND_TIMEOUT
+        # except:
+        #     return RESPOND_ERROR
 
     def get_state(self) -> dict:
         self.GUI.add_message(Message(MsgType.SET_PROGRESS_BAR, 0))
@@ -400,7 +406,7 @@ class SerialCtrl:
                     task.dict["data"]["m4_speed"], task.dict["data"]["s1_speed"],
                     task.dict["data"]["s2_speed"]))
             elif task.dict["type"] == MsgType.VISUAL_MODE:
-                self._result_handler(self.visual_mode(task.dict["data"]["x"], task.dict["data"]["y"], task.dict["data"]["rot"], task.dict["data"]["qr_id"]))
+                self._result_handler(self.visual_mode(task.dict["data"]["x"], task.dict["data"]["z"], task.dict["data"]["rot"], task.dict["data"]["qr_id"]))
 
 
     def add_task(self, task : Message):

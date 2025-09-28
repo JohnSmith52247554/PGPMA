@@ -6,5 +6,6 @@
 extern uint8_t op_should_check_host_connect;
 
 void Operation_Poll();
+void Op_SetVisualMode();
 
 #endif

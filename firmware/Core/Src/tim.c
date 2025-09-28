@@ -29,6 +29,8 @@
 
 #define UART_MAX 10
 uint8_t uart_counter = 0;
+// uint16_t cnt = 0;
+// uint16_t second = 0;
 
 volatile uint8_t tim_delay_flag = TIM_DELAY_OK;
 
@@ -321,11 +323,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
       uart_counter = 0;
     }
+    // cnt++;
+    // if (cnt >= 100)
+    // {
+    //   cnt = 0;
+    //   second++;
+    //   OLED_ShowNum(4, 1, second, 5);
+    // }
+
   }
-  // else if (htim->Instance == TIM3)
-  // {
-  //   tim3_it_counter++;
-  // }
   else if (htim->Instance == TIM4)
   {
     __HAL_TIM_CLEAR_IT(&htim4, TIM_IT_UPDATE);

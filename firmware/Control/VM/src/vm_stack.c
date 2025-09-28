@@ -171,14 +171,18 @@ void writeLocal(Vm *vm, uint8_t idx, VmSlot data)
  * @param return_addr 栈帧的返回地址，该指令相对于程序区起始的偏移量
  * @param argc 形参个数
  */
-void pushFrame(Vm *vm, uint16_t return_addr, uint8_t argc)
+void pushFrame(Vm *vm, uint16_t return_addr, const uint8_t argc)
 {
-    // 缓存形参
-    VmSlot *par_buf = (VmSlot *)malloc(argc * sizeof(VmSlot));
-    // 弹出形参
-    for (int i = 0; i < argc; i++)
+    VmSlot *par_buf = NULL;
+    if (argc != 0)
     {
-        *(par_buf + i) = popSlot(vm);
+        // 缓存形参
+        par_buf = (VmSlot *)malloc(argc * sizeof(VmSlot));
+        // 弹出形参
+        for (int i = 0; i < argc; i++)
+        {
+            *(par_buf + i) = popSlot(vm);
+        }
     }
 
     // 压入返回地址
@@ -199,12 +203,15 @@ void pushFrame(Vm *vm, uint16_t return_addr, uint8_t argc)
 
     // 新的local_size在ENTER中设置
 
-    // 传入形参，保证顺序不变
-    for (int i = argc - 1; i >= 0; i--)
+    if (argc != 0)
     {
-        pushSlot(vm, *(par_buf + i));
+        // 传入形参，保证顺序不变
+        for (int i = argc - 1; i >= 0; i--)
+        {
+            pushSlot(vm, *(par_buf + i));
+        }
+        free(par_buf);
     }
-    free(par_buf);
 }
 
 /**

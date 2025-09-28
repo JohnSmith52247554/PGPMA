@@ -40,11 +40,13 @@
 #include "USBD_ctrl.h"
 #include "Joint.h"
 #include "vm.h"
+#include "vm_dispatch.h"
 #include "OperationMode.h"
 #include "AllJoint.h"
 #include "error.h"
 #include "Gripper.h"
 #include "trigonometric.h"
+#include "VisualMode.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -132,29 +134,18 @@ int main(void)
 	AllJoint_Init();
 	W25Q_Init();
 	TIM2_IT_Start();
-
-	// USART_SendStr("#255PBD0!");
-
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		// if (periph_error != PE_NO_ERROR)
-		// 	break;
-
 		Operation_Poll();
-		// USART_SendStr("#000PBD0!");
-		// HAL_Delay(1000);
-
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
 	}
 
-	// OLED_Clear();
-	// OLED_ShowString(1, 1, Error_GetPeriphErrorStr(periph_error));
 	/* USER CODE END 3 */
 }
 

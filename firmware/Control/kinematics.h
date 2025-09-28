@@ -32,6 +32,7 @@ typedef struct
 #define KINE_ARM_COLLISION 4
 
 uint8_t kine_reverse_resolve(KineHandle *handle);
-MotorAngle get_motor_angle(KineHandle *handle);
+uint8_t kine_reverse_range(KineHandle *handle, float alpha_begin, float alpha_end, float step);
+MotorAngle kine_get_motor_angle(KineHandle *handle);
 
 #endif

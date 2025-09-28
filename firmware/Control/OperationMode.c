@@ -14,6 +14,7 @@
 
 #define OP_SLAVE_MODE   0
 #define OP_PROGRAM_MODE 1
+#define OP_VISUAL_MODE  2
 
 uint8_t operation_mode = OP_SLAVE_MODE;
 uint8_t op_mode_move_flag = 1;
@@ -33,10 +34,20 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     {
         // 消抖
         uint32_t current_time = HAL_GetTick();
-        if (current_time - last_interrupt_time > 150)
+        if (current_time - last_interrupt_time > 200)
         {
             last_interrupt_time = current_time;
-            operation_mode = (operation_mode + 1) % 2;
+            if (operation_mode == OP_SLAVE_MODE)
+                operation_mode = OP_PROGRAM_MODE;
+            else if (operation_mode == OP_PROGRAM_MODE)
+                operation_mode = OP_SLAVE_MODE;
+            else if (operation_mode == OP_VISUAL_MODE)
+            {
+                operation_mode = OP_SLAVE_MODE;
+                Visual_Deactive(&visual_handle);
+            }
+            else
+                operation_mode = OP_SLAVE_MODE;
             op_mode_move_flag = 1;
             // Error_Handler();
         }
@@ -48,6 +59,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
 }
 
+void Op_SetVisualMode()
+{
+    operation_mode = OP_VISUAL_MODE;
+}
 
 void Operation_Poll()
 {
@@ -103,16 +118,28 @@ void Operation_Poll()
             OLED_ShowString(3, 1, VM_GetStatusString(vm.status_code));
         }
         break;
+    case OP_VISUAL_MODE:
+        {
+            USBD_Poll();
+
+            if (vm.status_code == VM_RUNNING)
+            {
+                vm_dispatch(&vm);
+                OLED_ShowHexNum(4, 1, vm.program_counter, 8);
+            }
+            OLED_ShowString(3, 1, VM_GetStatusString(vm.status_code));
+
+        }
+        break;
 
     default:
         break;
     }
 
-    // Gripper_Poll();
+    Gripper_Poll();
     JointCtrl_Poll();
-    // S1_Poll();
+    S1_Poll();
 
-    Visual_Poll();
 }
 
 void Operation_CheckHostConnect()

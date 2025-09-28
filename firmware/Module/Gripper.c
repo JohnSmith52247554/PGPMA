@@ -9,10 +9,10 @@
 
 #define GRIPPER_SERVO_ID 1
 
-#define GRIPPER_MAX_ANGLE   143.f
+#define GRIPPER_MAX_ANGLE   135.f
 #define GRIPPER_MIN_ANGLE   0.f
 
-#define PRESSUER_THRESHOLD  800
+#define PRESSUER_THRESHOLD  3000
 
 #define GRIPPER_SPEED_FACTOR    9999.f
 #define GRIPPER_MAX_SPEED   100.f
@@ -28,7 +28,7 @@ uint8_t gripper_timit_flag = GRIPPER_TIMIT_OK;
 float gripper_target;
 uint8_t gripper_has_achieve_target = 1;
 
-#define S1_MIDDLE_OFFSET 117.f
+#define S1_MIDDLE_OFFSET 94.f
 
 float servo_speed = 10.f;
 uint8_t s1_timit_flag = S1_TIMIT_OK;
@@ -124,6 +124,7 @@ void Gripper_Poll()
         // Servo_Stop(GRIPPER_SERVO_ID);
         return;
     }
+    // OLED_ShowNum(4, 1, pressure, 5);
 
     // OLED_ShowNum(4, 1, pressure, 8);
 

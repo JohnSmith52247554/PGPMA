@@ -9,7 +9,7 @@
 #define START_UP_SLOPE 0.5f
 #define MIN(A, B) (A) > (B) ? (B) : (A)
 
-#define KP 0.06f
+#define KP 0.03f
 #define KI 0.f
 #define KD 0.2f
 
@@ -173,18 +173,18 @@ void Joint_Poll(Joint_HandleTypeDef *hjoint, MS42D_Info *info)
  */
 void Joint_MakeZero(Joint_HandleTypeDef *hjoint, float cur_angle)
 {
-    OLED_ShowFloatNum(4, 1, cur_angle, 8, 2);
+    // OLED_ShowFloatNum(4, 1, cur_angle, 8, 2);
 
     MS42DDirRot direction;
     if (cur_angle < 0)
     {
         direction = MS42D_DIR_ROT_ANTICLOCKWISE;
-        OLED_ShowString(4, 13, "a");
+        // OLED_ShowString(4, 13, "a");
     }
     else
     {
         direction = MS42D_DIR_ROT_CLOCKWISE;
-        OLED_ShowString(4, 13, "c");
+        // OLED_ShowString(4, 13, "c");
     }
 
     MS42D_SetRelativePos(hjoint->can_id, direction, MS42D_RESET_SPEED, cur_angle);

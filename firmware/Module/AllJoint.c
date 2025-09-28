@@ -10,6 +10,9 @@ Joint_HandleTypeDef m2h;
 Joint_HandleTypeDef m3h;
 Joint_HandleTypeDef m4h;
 
+uint64_t request_err_cnt = 0;
+uint16_t cnt = 0;
+
 // TIM中断标志位
 uint8_t joint_timit_state = JOINT_TIMIT_OK;
 
@@ -48,7 +51,7 @@ void AllJoint_Init()
     Joint_InitStruct.reduction_ratio = REDUCTION_510;
     Joint_InitStruct.reset_begin_point = 60;
     Joint_InitStruct.reset_dir = MS42D_DIR_ROT_ANTICLOCKWISE;
-    Joint_InitStruct.reset_offset = 0;
+    Joint_InitStruct.reset_offset = 12;
     Joint_InitStruct.current = 800;
     Joint_Init(&m1h, &Joint_InitStruct);
 
@@ -70,7 +73,7 @@ void AllJoint_Init()
     Joint_InitStruct.reduction_ratio = REDUCTION_192;
     Joint_InitStruct.reset_begin_point = -60;
     Joint_InitStruct.reset_dir = MS42D_DIR_ROT_CLOCKWISE;
-    Joint_InitStruct.reset_offset = 15;
+    Joint_InitStruct.reset_offset = 20;
     Joint_InitStruct.current = 800;
     Joint_Init(&m4h, &Joint_InitStruct);
 
@@ -146,6 +149,27 @@ void Joint_TimItHandler()
     Joint_Poll(&m4h, &joint_info[m4h.can_id - 1]);
 
     joint_timit_state = JOINT_TIMIT_OK;
+
+    // OLED_ShowNum(4, 1, request_err_cnt, 5);
+    cnt++;
+    if (cnt > 100)
+    {
+        cnt = 0;
+        if (request_err_cnt > 300)
+        {
+            MS42D_SetSpeed(m1h.can_id, MS42D_DIR_ROT_CLOCKWISE, 0);
+            MS42D_SetSpeed(m2h.can_id, MS42D_DIR_ROT_CLOCKWISE, 0);
+            MS42D_SetSpeed(m3h.can_id, MS42D_DIR_ROT_CLOCKWISE, 0);
+            MS42D_SetSpeed(m4h.can_id, MS42D_DIR_ROT_CLOCKWISE, 0);
+
+            MS42D_SetSpeed(m2h.can_id, MS42D_DIR_ROT_CLOCKWISE, 0);
+            MS42D_SetSpeed(m3h.can_id, MS42D_DIR_ROT_CLOCKWISE, 0);
+            MS42D_SetSpeed(m4h.can_id, MS42D_DIR_ROT_CLOCKWISE, 0);
+            // Error_Handler();
+            HAL_Delay(500);
+        }
+        request_err_cnt = 0;
+    }
 }
 
 void AllJoint_StoreData(uint8_t can_id)
@@ -156,6 +180,7 @@ void AllJoint_StoreData(uint8_t can_id)
     {
         periph_error = PE_CAN2_RX_ERROR;
         hardware_error = HE_MS42D_ERROR;
+        request_err_cnt++;
         return;
     }
     joint_info[info.can_id - 1] = info;
